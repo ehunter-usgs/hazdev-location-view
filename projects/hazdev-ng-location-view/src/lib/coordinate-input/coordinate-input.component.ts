@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators, FormsModule, ReactiveFormsModule  } from '@angular/forms';
-import { MatDialogRef } from '@angular/material';
+import { Component, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { EventEmitter } from 'protractor';
+import { Subscription } from 'rxjs';
 
 import { CoordinatesService } from '../coordinates.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'location-input-coordinate',
@@ -14,38 +14,36 @@ export class CoordinateInputComponent implements OnDestroy, OnInit {
   coordinatesForm: FormGroup;
   subscription = new Subscription();
 
-  constructor (
+  @Output()
+  location = new EventEmitter();
+
+  constructor(
     public coordinatesService: CoordinatesService,
-    public dialogRef: MatDialogRef<CoordinateInputComponent>,
     public fb: FormBuilder
   ) {}
 
-  ngOnInit () {
-    let latitude,
-        longitude;
+  ngOnInit() {
+    let latitude, longitude;
 
     this.subscription.add(
-      this.coordinatesService.coordinates$.subscribe((coordinates) => {
-        latitude = (coordinates ? coordinates.latitude : '');
-        longitude = (coordinates ? coordinates.longitude : '');
+      this.coordinatesService.coordinates$.subscribe(coordinates => {
+        latitude = coordinates ? coordinates.latitude : '';
+        longitude = coordinates ? coordinates.longitude : '';
       })
     );
 
     this.coordinatesForm = this.fb.group({
-      'latitude': [latitude, Validators.required],
-      'longitude': [longitude, Validators.required]
+      latitude: [latitude, Validators.required],
+      longitude: [longitude, Validators.required]
     });
   }
 
-  ngOnDestroy () {
+  ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  handleSubmit (value: any) {
-    let confidence,
-        latitude,
-        longitude,
-        zoom;
+  handleSubmit(value: any) {
+    let confidence, latitude, longitude, zoom;
 
     latitude = value.latitude;
     longitude = value.longitude;
@@ -56,7 +54,9 @@ export class CoordinateInputComponent implements OnDestroy, OnInit {
 
     // compute confidence
     confidence = this.coordinatesService.computeFromCoordinates(
-        latitude, longitude);
+      latitude,
+      longitude
+    );
 
     // compute zoom
     zoom = this.coordinatesService.computeZoomFromConfidence(confidence);
@@ -70,7 +70,6 @@ export class CoordinateInputComponent implements OnDestroy, OnInit {
       zoom: zoom
     });
 
-    // Use injected reference to close dialog
-    this.dialogRef.close();
+    this.location.emit('setLocation');
   }
 }

@@ -7,12 +7,7 @@ import { MatDialogRef } from '@angular/material';
   styleUrls: ['./location-dialog.component.css']
 })
 export class LocationDialogComponent implements OnInit {
+  constructor(public dialogRef: MatDialogRef<LocationDialogComponent>) {}
 
-  constructor(
-    public dialogRef: MatDialogRef<LocationDialogComponent>
-  ) { }
-
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

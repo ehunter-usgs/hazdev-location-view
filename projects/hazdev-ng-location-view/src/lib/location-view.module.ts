@@ -45,8 +45,7 @@ import { LocationDialogComponent } from './location-dialog/location-dialog.compo
     GeocodeInputComponent,
     GeolocateInputComponent,
     LocationDialogComponent
-  ],
-  providers: []
+  ]
 })
 export class LocationViewModule {
   static forRoot(): ModuleWithProviders {
